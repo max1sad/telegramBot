@@ -1,0 +1,13 @@
+{
+  "version": 2,
+  "dgSpecHash": "3SgP2XI8ktteSXIzYsigNY8f0X2JSU6qRAr8swSRh+jXcLVO6Q59woOlk+atzMCLL7LSpDnWow7+8IH+cpQO9Q==",
+  "success": true,
+  "projectFilePath": "E:\\Подготовка к диплому\\Наработки по диплому\\Телеграмм бот тестовый\\FootballTelegramBot\\FootballTelegramBot.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\79963\\.nuget\\packages\\newtonsoft.json\\13.0.1\\newtonsoft.json.13.0.1.nupkg.sha512",
+    "C:\\Users\\79963\\.nuget\\packages\\system.threading.channels\\6.0.0\\system.threading.channels.6.0.0.nupkg.sha512",
+    "C:\\Users\\79963\\.nuget\\packages\\telegram.bot\\18.0.0\\telegram.bot.18.0.0.nupkg.sha512",
+    "C:\\Users\\79963\\.nuget\\packages\\telegram.bot.extensions.polling\\1.0.2\\telegram.bot.extensions.polling.1.0.2.nupkg.sha512"
+  ],
+  "logs": []
+}
