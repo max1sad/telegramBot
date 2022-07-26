@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "E:\\Подготовка к диплому\\Наработки по диплому\\Телеграмм бот тестовый\\FootballTelegramBot\\FootballTelegramBot.csproj": {}
+    "E:\\Подготовка к диплому\\Наработки по диплому\\git\\telegramBot\\FootballTelegramBot.csproj": {}
   },
   "projects": {
-    "E:\\Подготовка к диплому\\Наработки по диплому\\Телеграмм бот тестовый\\FootballTelegramBot\\FootballTelegramBot.csproj": {
+    "E:\\Подготовка к диплому\\Наработки по диплому\\git\\telegramBot\\FootballTelegramBot.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "E:\\Подготовка к диплому\\Наработки по диплому\\Телеграмм бот тестовый\\FootballTelegramBot\\FootballTelegramBot.csproj",
+        "projectUniqueName": "E:\\Подготовка к диплому\\Наработки по диплому\\git\\telegramBot\\FootballTelegramBot.csproj",
         "projectName": "FootballTelegramBot",
-        "projectPath": "E:\\Подготовка к диплому\\Наработки по диплому\\Телеграмм бот тестовый\\FootballTelegramBot\\FootballTelegramBot.csproj",
+        "projectPath": "E:\\Подготовка к диплому\\Наработки по диплому\\git\\telegramBot\\FootballTelegramBot.csproj",
         "packagesPath": "C:\\Users\\79963\\.nuget\\packages\\",
-        "outputPath": "E:\\Подготовка к диплому\\Наработки по диплому\\Телеграмм бот тестовый\\FootballTelegramBot\\obj\\",
+        "outputPath": "E:\\Подготовка к диплому\\Наработки по диплому\\git\\telegramBot\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\79963\\AppData\\Roaming\\NuGet\\NuGet.Config",
@@ -40,9 +40,17 @@
         "netcoreapp3.1": {
           "targetAlias": "netcoreapp3.1",
           "dependencies": {
+            "Microsoft.Data.SqlClient": {
+              "target": "Package",
+              "version": "[4.1.0, )"
+            },
             "Newtonsoft.Json": {
               "target": "Package",
               "version": "[13.0.1, )"
+            },
+            "System.Data.SqlClient": {
+              "target": "Package",
+              "version": "[4.8.3, )"
             },
             "Telegram.Bot": {
               "target": "Package",
