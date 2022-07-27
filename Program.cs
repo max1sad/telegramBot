@@ -11,22 +11,30 @@ namespace FootballTelegramBot
 {
     class Program
     {
+        public static DBConnection connectsql = new DBConnection();
         static ITelegramBotClient bot = new TelegramBotClient("5444116745:AAEiHTg9bpEQLHA7sEGj_c7SpCTg6AXMVPY");
+        //результат запроса к БД
+        public static string resultSql = "";
+        //строка запроса пишется
+        public static string sqlStr = "";
+        //метка на проверку была ли нажата кнопка в начале действий
         static bool labelClick = false;
+        //название кнопки на которую совершили нажатие
+        public static string actionChoice = "";
+        //проверка сообщения на заявку при выборе какой турнир
+        static bool levelAplly1 = false;
+       // public static bool apply
+        //фомируются исодные данные для принятия заявки на турнир
+        public static string applicationTournament = "";
         public static async Task HandleUpdateAsync(ITelegramBotClient botClient,Update update, CancellationToken cancellationToken)
-        {   string actionChoice = "";
+        {   
             
             var message = update.Message;
             //результат ответа от телеграмма выводится
             Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(update));
             //бот случает чат телеграмма на новые сообщения
             if (update.Type == Telegram.Bot.Types.Enums.UpdateType.Message)
-            {
-                
-                //переменная где хранится информация об сообщении.которое поступило в чат
-                //var message = update.Message;
-                //сообщение которое приходит от бота 
-                //await botClient.SendTextMessageAsync(message.Chat,message.Text);
+            {               
                 if (message.Text == "/start")
                 {
                      labelClick = true;
@@ -34,10 +42,42 @@ namespace FootballTelegramBot
                     //await botClient.SendTextMessageAsync(message.Chat.Id, message.Text,replyToMessageId: message.MessageId);
                     //создание кнопки в телеграмме
                     await botClient.SendTextMessageAsync(message.Chat.Id,"Привет человек");
+                    //вывод кнопок для совершения действий
                     await botClient.SendTextMessageAsync(message.Chat.Id, "Выбири действия", replyMarkup: buttonTest());
                     return;
                 }
+                //проверка что после нажатия кнопки было совершон ответ
+                if (actionChoice == "apply")
+                {
+                    applicationTournament = message.Text + ";";
+                    sqlStr = "select idNameTourney,nameTourney from nameTourney where statusToutney is null";
+                    //запрос на список турниров для участия.
+                    actionChoice = "apply1";
+                    resultSql = connectsql.SqlRead(sqlStr, actionChoice);
+                    await botClient.SendTextMessageAsync(message.Chat.Id, "Выбери номер турнира, в котором планируешь учавствовать");
+                    //вывод пользователю список турниров с номерами
+                    await botClient.SendTextMessageAsync(message.Chat.Id, resultSql);
+                    //Console.WriteLine(applicationTournament);
+                    actionChoice = "";
+                    levelAplly1 = true;
+                    sqlStr = "";
+                    return;
+                }
+                //проверка что идет выбор турнира в котором будут учавствовать команда
+                if (levelAplly1 == true)
+                {
+                    //строка в котрой имеется номер лиги и номер турнира
+                    applicationTournament += message.Text + ";";
+                    await botClient.SendTextMessageAsync(message.Chat.Id, "Введити данные о команде в формате \"Название команды:Игрок1;Игрок2;\" и т.д. Заканчивается знаком \";\"");
+                    Console.WriteLine(applicationTournament);
+                    levelAplly1 = false;
+                    return;
+                }
+                //дальше нужно считать сообщение с названием команды и списком игроков, 
+                //
+                //
                 await botClient.SendTextMessageAsync(message.Chat.Id, "Для начала работы напиши \"/start\"");
+                
             }
             Console.WriteLine(labelClick);
             //проверка на какую кнопку нажали
@@ -65,7 +105,12 @@ namespace FootballTelegramBot
                         {
                             await bot.SendTextMessageAsync(updateCallbackQuery.Message.Chat.Id, "Выбери лигу, указав номер");
                             //вывод списка лиг из бд
-                            Console.WriteLine(actionChoice);
+                            sqlStr = "SELECT nameLeague FROM league";
+                            //вызом метода для вывода из данных из БД. передача двух параметров. строка запроса и название кнопки на которую нажали
+                            resultSql = connectsql.SqlRead(sqlStr, actionChoice);
+                            await bot.SendTextMessageAsync(updateCallbackQuery.Message.Chat.Id, resultSql);
+
+                            //Console.WriteLine(s);
                         }
                         break;
                 }
@@ -103,10 +148,9 @@ namespace FootballTelegramBot
         
         static void Main(string[] args)
         {
-            DBConnection connectsql = new DBConnection();
-            //connectsql.OpenConnect();
-            String sqlstr = "SELECT nameLeague FROM league";
-            connectsql.SqlRead(sqlstr);
+            //вызывает соединение с базой данных
+            connectsql.OpenConnect();
+            
             //блок запуска бота и методов проверки сообщений и обработки ошибок
             Console.WriteLine("Запущен бот " + bot.GetMeAsync().Result.FirstName);
             var cts = new CancellationTokenSource();

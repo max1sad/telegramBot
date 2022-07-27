@@ -23,20 +23,38 @@ namespace FootballTelegramBot
                 sqlConnection.Close();
             }
         }
-        public void SqlRead(String sqlstr)
+        public  string  SqlRead(String sqlstr, string nameOperation)
         {
+            string sqlStr = "";
+            
             try
             {
                 using (SqlCommand sqlCommand = new SqlCommand(sqlstr,sqlConnection))
                 {
-                    sqlConnection.Open();
-                    Console.WriteLine(sqlCommand.CommandText);                   
+                    //OpenConnect();
+                    //sqlConnection.Open();
+                    //Console.WriteLine(sqlCommand.CommandText);
+                    
                     using (SqlDataReader sqlDataReader = sqlCommand.ExecuteReader())
                     {
                         while (sqlDataReader.Read())
-                        {
-                            Console.WriteLine(sqlDataReader.GetString(0));
+                        {   
+                            if ( nameOperation == "apply")
+                            {
+                                sqlStr = sqlStr + sqlDataReader.GetString(0) + " -Лига \n";
+                            }
+                            if (nameOperation == "apply1")
+                            {
+                                sqlStr = sqlStr + sqlDataReader.GetInt32(0).ToString() + " --- "+ sqlDataReader.GetString(1) + " \n";
+                                //Console.WriteLine(sqlDataReader.GetInt32(0).ToString());
+
+                            }
+
+                            //Console.WriteLine(sqlStr);
+                            //Console.WriteLine(sqlDataReader.GetString(0));
                         }
+                        //Console.WriteLine(sqlStr);
+                        
                     }
                 }
                 
@@ -45,8 +63,8 @@ namespace FootballTelegramBot
             {
                 Console.WriteLine(e.ToString());
             }
-            
-                
+            return sqlStr;
+
         }
 
     }
