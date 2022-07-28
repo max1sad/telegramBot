@@ -23,7 +23,7 @@ namespace FootballTelegramBot
                 sqlConnection.Close();
             }
         }
-        public  string  SqlRead(String sqlstr, string nameOperation)
+        public  string  SqlRead(String sqlstr, int numberOperation)
         {
             string sqlStr = "";
             
@@ -39,11 +39,11 @@ namespace FootballTelegramBot
                     {
                         while (sqlDataReader.Read())
                         {   
-                            if ( nameOperation == "apply")
+                            if (numberOperation == 0)
                             {
                                 sqlStr = sqlStr + sqlDataReader.GetString(0) + " -Лига \n";
                             }
-                            if (nameOperation == "apply1")
+                            if (numberOperation == 1)
                             {
                                 sqlStr = sqlStr + sqlDataReader.GetInt32(0).ToString() + " --- "+ sqlDataReader.GetString(1) + " \n";
                                 //Console.WriteLine(sqlDataReader.GetInt32(0).ToString());

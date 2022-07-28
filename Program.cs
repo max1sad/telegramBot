@@ -17,18 +17,17 @@ namespace FootballTelegramBot
         public static string resultSql = "";
         //строка запроса пишется
         public static string sqlStr = "";
+        public static int levelAplly = 0;
         //метка на проверку была ли нажата кнопка в начале действий
         static bool labelClick = false;
         //название кнопки на которую совершили нажатие
-        public static string actionChoice = "";
-        //проверка сообщения на заявку при выборе какой турнир
-        static bool levelAplly1 = false;
-       // public static bool apply
+        public static string actionChoice = "";       
         //фомируются исодные данные для принятия заявки на турнир
         public static string applicationTournament = "";
+        public static string applicationChek = "";
         public static async Task HandleUpdateAsync(ITelegramBotClient botClient,Update update, CancellationToken cancellationToken)
-        {   
-            
+        {
+            StringParcers stringParcers = new StringParcers();
             var message = update.Message;
             //результат ответа от телеграмма выводится
             Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(update));
@@ -37,47 +36,87 @@ namespace FootballTelegramBot
             {               
                 if (message.Text == "/start")
                 {
-                     labelClick = true;
-                    //сообщение от бота с выделением конкретного сообщения, кто отправил
-                    //await botClient.SendTextMessageAsync(message.Chat.Id, message.Text,replyToMessageId: message.MessageId);
-                    //создание кнопки в телеграмме
+                    //очищаем все переменные, бот работает всегда, следовательно если новые действия будут, что бы не вело в заблуждение.
+                    labelClick = true;
+                    actionChoice = "";
+                    sqlStr = "";
+                    applicationChek = "";
+                    levelAplly = 0;
+                    applicationTournament = "";
                     await botClient.SendTextMessageAsync(message.Chat.Id,"Привет человек");
                     //вывод кнопок для совершения действий
                     await botClient.SendTextMessageAsync(message.Chat.Id, "Выбири действия", replyMarkup: buttonTest());
                     return;
                 }
+
                 //проверка что после нажатия кнопки было совершон ответ
-                if (actionChoice == "apply")
-                {
-                    applicationTournament = message.Text + ";";
-                    sqlStr = "select idNameTourney,nameTourney from nameTourney where statusToutney is null";
-                    //запрос на список турниров для участия.
-                    actionChoice = "apply1";
-                    resultSql = connectsql.SqlRead(sqlStr, actionChoice);
-                    await botClient.SendTextMessageAsync(message.Chat.Id, "Выбери номер турнира, в котором планируешь учавствовать");
-                    //вывод пользователю список турниров с номерами
-                    await botClient.SendTextMessageAsync(message.Chat.Id, resultSql);
-                    //Console.WriteLine(applicationTournament);
-                    actionChoice = "";
-                    levelAplly1 = true;
-                    sqlStr = "";
-                    return;
-                }
-                //проверка что идет выбор турнира в котором будут учавствовать команда
-                if (levelAplly1 == true)
-                {
-                    //строка в котрой имеется номер лиги и номер турнира
-                    applicationTournament += message.Text + ";";
-                    await botClient.SendTextMessageAsync(message.Chat.Id, "Введити данные о команде в формате \"Название команды:Игрок1;Игрок2;\" и т.д. Заканчивается знаком \";\"");
-                    Console.WriteLine(applicationTournament);
-                    levelAplly1 = false;
-                    return;
-                }
-                //дальше нужно считать сообщение с названием команды и списком игроков, 
-                //
-                //
-                await botClient.SendTextMessageAsync(message.Chat.Id, "Для начала работы напиши \"/start\"");
-                
+                switch (levelAplly)
+                {                                           
+                    case 1:
+                        Console.WriteLine(actionChoice);
+                        applicationChek = message.Text;
+                        if (stringParcers.inputNumberLeague(applicationChek, levelAplly) == true)
+                        {
+                            applicationTournament = message.Text + ";";
+                            sqlStr = "select idNameTourney,nameTourney from nameTourney where statusToutney is null";
+                            //запрос на список турниров для участия.
+                            //actionChoice = "apply1";
+                            resultSql = connectsql.SqlRead(sqlStr, levelAplly);
+                            await botClient.SendTextMessageAsync(message.Chat.Id, "Выбери номер турнира, в котором планируешь учавствовать");
+                            //вывод пользователю список турниров с номерами
+
+                            await botClient.SendTextMessageAsync(message.Chat.Id, resultSql);
+                            //Console.WriteLine(applicationTournament);
+                            actionChoice = "";
+                            levelAplly = 2;
+                            applicationChek = "";
+                            //levelAplly1 = true;
+                            sqlStr = "";
+                        }
+                        else
+                        {
+                            await botClient.SendTextMessageAsync(message.Chat.Id, "Ввели не числи. Напишите цифру соответствущую");
+                            levelAplly = 1;
+                        }                        
+                        return;
+                    case 2:
+                        applicationChek = message.Text;
+                        if (stringParcers.inputNumberLeague(applicationChek, levelAplly) == true)
+                        {
+                            //строка в котрой имеется номер лиги и номер турнира
+                            applicationTournament += message.Text + ";";
+                            await botClient.SendTextMessageAsync(message.Chat.Id, "Введити данные о команде в формате \"Название команды:Игрок1;Игрок2;\" и т.д. Заканчивается знаком \";\"");
+                            Console.WriteLine(applicationTournament);
+                            levelAplly = 3;
+                            applicationChek = "";
+                        }
+                        else
+                        {
+                            await botClient.SendTextMessageAsync(message.Chat.Id, "Ввели не числи. Напишите цифру соответствущую");
+                            levelAplly = 2;
+                        }                       
+                        return;
+                    case 3:
+                        applicationChek = message.Text;
+                        if (stringParcers.inputNumberLeague(applicationChek, levelAplly) == true)
+                        {
+                            applicationTournament += message.Text;
+                            Console.WriteLine(applicationTournament);
+                            await botClient.SendTextMessageAsync(message.Chat.Id, "Спасибо, заявка будет рассмотренна в ближайшее время");
+                            levelAplly = 0;
+                        }
+                        else
+                        {
+                            await botClient.SendTextMessageAsync(message.Chat.Id, "Не соответствует введенному формату, повторите ввод(в именах только русские буквы)");
+                            levelAplly = 3;
+                        }                        
+                        return;
+                    default:
+                        Console.WriteLine("Не указали параметр");
+                        await botClient.SendTextMessageAsync(message.Chat.Id, "Для начала работы напиши \"/start\"");
+                        return;
+                }              
+                //await botClient.SendTextMessageAsync(message.Chat.Id, "Для начала работы напиши \"/start\"");                
             }
             Console.WriteLine(labelClick);
             //проверка на какую кнопку нажали
@@ -107,19 +146,14 @@ namespace FootballTelegramBot
                             //вывод списка лиг из бд
                             sqlStr = "SELECT nameLeague FROM league";
                             //вызом метода для вывода из данных из БД. передача двух параметров. строка запроса и название кнопки на которую нажали
-                            resultSql = connectsql.SqlRead(sqlStr, actionChoice);
+                            resultSql = connectsql.SqlRead(sqlStr, levelAplly);
                             await bot.SendTextMessageAsync(updateCallbackQuery.Message.Chat.Id, resultSql);
-
+                            levelAplly = 1;
                             //Console.WriteLine(s);
                         }
                         break;
-                }
-
-                
-            }
-            
-            
-           
+                }               
+            }                                  
         }
        
         //кнопки для стартового выбора действий 
@@ -139,7 +173,6 @@ namespace FootballTelegramBot
             });
             return ikm;
         }
-
         
         public static async Task HandleErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
         {
