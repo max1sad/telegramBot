@@ -56,20 +56,22 @@ namespace FootballTelegramBot
                     using (SqlDataReader sqlDataReader = sqlCommand.ExecuteReader())
                     {
                         while (sqlDataReader.Read())
-                        {   
+                        {   //вывод какие лиги есть в списках
                             if (numberOperation == 0)
                             {
                                 sqlStr = sqlStr + sqlDataReader.GetString(0) + " -Лига \n";
                             }
+                            //получения ид номера турнира и его название.
                             if (numberOperation == 1)
                             {
                                 sqlStr = sqlStr + sqlDataReader.GetInt32(0).ToString() + " --- "+ sqlDataReader.GetString(1) + " \n";
                                 //Console.WriteLine(sqlDataReader.GetInt32(0).ToString());
 
                             }
+                            //запрос на то, что бы узнать ид из какой либо таблицы.
                             if (numberOperation == 100)
                             {
-                                sqlStr = sqlStr + sqlDataReader.GetInt32(0).ToString();
+                                sqlStr = sqlDataReader.GetInt32(0).ToString();
                             }
                             //Console.WriteLine(sqlStr);
                             //Console.WriteLine(sqlDataReader.GetString(0));

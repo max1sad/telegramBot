@@ -20,6 +20,7 @@ namespace FootballTelegramBot
         public static string sqlStr = "";
         //метка, которая устнавливает числовое знгачение , определяет этапы диалогов для разных веток общения.
         //от 1-3 это этапы создания заявки на участие в турнире
+        //4-5  это запрос на вывод турнирной таблицы.
         public static int levelAplly = 0;
         //метка на проверку была ли нажата кнопка в начале действий
         static bool labelClick = false;
@@ -40,7 +41,6 @@ namespace FootballTelegramBot
             {               
                 if (message.Text == "/start")
                 {
-                    //connectsql.SqlWrite("insert into Team (nameTeams) values (\'ФК Тест1\');");
                     //очищаем все переменные, бот работает всегда, следовательно если новые действия будут, что бы не вело в заблуждение.
                     labelClick = true;
                     actionChoice = "";
@@ -65,17 +65,14 @@ namespace FootballTelegramBot
                             applicationTournament = message.Text + ";";
                             sqlStr = "select idNameTourney,nameTourney from nameTourney where statusToutney is null";
                             //запрос на список турниров для участия.
-                            //actionChoice = "apply1";
                             resultSql = connectsql.SqlRead(sqlStr, levelAplly);
                             await botClient.SendTextMessageAsync(message.Chat.Id, "Выбери номер турнира, в котором планируешь учавствовать");
                             //вывод пользователю список турниров с номерами
-
                             await botClient.SendTextMessageAsync(message.Chat.Id, resultSql);
                             //Console.WriteLine(applicationTournament);
                             actionChoice = "";
                             levelAplly = 2;
                             applicationChek = "";
-                            //levelAplly1 = true;
                             sqlStr = "";
                         }
                         else
@@ -105,6 +102,7 @@ namespace FootballTelegramBot
                         applicationChek = message.Text;
                         if (stringParcers.inputNumberLeague(applicationChek, levelAplly) == true)
                         {
+                            string idPlayers = "";
                             List<string> stringArray = new List<string>();
                             applicationTournament += message.Text;
                             Console.WriteLine(applicationTournament);
@@ -117,20 +115,32 @@ namespace FootballTelegramBot
                             connectsql.SqlWrite(sqlStr);
                             //получаем id добавленной команды
                             sqlStr = "";
-                            sqlStr = "select idTeams from Team where nameTeams = \'"+stringArray[2]+"\';";                            
-                            string str = connectsql.SqlRead(sqlStr, 100);
+                            sqlStr = "select idTeams from Team where nameTeams = \'"+stringArray[2]+"\';";
+                            //запрос с номером 100- это вывод 1-го поля с типом числовым.
+                            string idTeams = connectsql.SqlRead(sqlStr, 100);
                             sqlStr = "";
                             // добавляем команду в турнир
-                            sqlStr = "insert into tourneyTeams (idLeague,idNameTourney,idTeams) values (" + stringArray[0] + "," + stringArray[1] + "," + str + ");";
+                            sqlStr = "insert into tourneyTeams (idLeague,idNameTourney,idTeams) values (" + stringArray[0] + "," + stringArray[1] + "," + idTeams + ");";
                             connectsql.SqlWrite(sqlStr);
-                            //добавялем всех игроков в таблицу игроки.
-                            for (int i = 3; i < stringArray.Count; i++)
+                            //добавялем всех игроков в таблицу игроки и первым запросом считаекм что капитан подал заявку и его номер пишем тоже.
+                            sqlStr = "insert into player (FIO,idPhone) values (\'" + stringArray[3] + "\'" + ",\'" + message.Chat.Id + "\');";
+                            connectsql.SqlWrite(sqlStr);
+                            sqlStr = "select idPlayer from player where FIO = \'" + stringArray[3] + "\';";
+                            idPlayers = connectsql.SqlRead(sqlStr, 100);
+                            sqlStr = "insert into playerTeams (idTeams,teamCaptain,idPlayer) values (" + idTeams + "," + "\'yes\'," + idPlayers + ");";
+                            connectsql.SqlWrite(sqlStr);
+                            for (int i = 4; i < stringArray.Count; i++)
                             {
-                                sqlStr = "";                                
+                                sqlStr = "";
                                 sqlStr = "insert into player (FIO) values (\'" + stringArray[i] + "\');";
+                                connectsql.SqlWrite(sqlStr);
+                                sqlStr = "select idPlayer from player where FIO = \'" + stringArray[i] + "\';";
+                                idPlayers = connectsql.SqlRead(sqlStr, 100);
+                                sqlStr = "insert into playerTeams (idTeams,idPlayer) values (" + idTeams + "," + idPlayers + ");";
                                 connectsql.SqlWrite(sqlStr);
                                 //Console.WriteLine(stringArray[i]);
                             }
+
                             //написать запрос добавления игрока в команду , id команды уже получал в переменную str;
                             Console.WriteLine(sqlStr);
 
@@ -142,6 +152,46 @@ namespace FootballTelegramBot
                             await botClient.SendTextMessageAsync(message.Chat.Id, "Не соответствует введенному формату, повторите ввод(в именах только русские буквы)");
                             levelAplly = 3;
                         }                        
+                        return;
+                    case 4:
+                        applicationChek = message.Text;
+                        if (stringParcers.inputNumberLeague(applicationChek, 1) == true)
+                        {
+                            applicationTournament = message.Text + ";";
+                            sqlStr = "select idNameTourney,nameTourney from nameTourney where statusToutney is null";
+                            //запрос на список турниров для участия.
+                            //actionChoice = "apply1";
+                            resultSql = connectsql.SqlRead(sqlStr, 1);
+                            await botClient.SendTextMessageAsync(message.Chat.Id, "Выбери номер турнира, для просмотра турнирной таблицы");
+                            //вывод пользователю список турниров с номерами
+                            await botClient.SendTextMessageAsync(message.Chat.Id, resultSql);
+                            //Console.WriteLine(applicationTournament);
+                            actionChoice = "";
+                            levelAplly = 5;
+                            applicationChek = "";
+                            //levelAplly1 = true;
+                            sqlStr = "";
+                        }
+                        else
+                        {
+                            await botClient.SendTextMessageAsync(message.Chat.Id, "Ввели не числи. Напишите цифру соответствущую");
+                            levelAplly = 4;
+                        }
+                        return;
+                    case 5:
+                        applicationChek = message.Text;
+                        if (stringParcers.inputNumberLeague(applicationChek, 1) == true)
+                        {
+                            applicationTournament += message.Text + ";";
+                            await botClient.SendTextMessageAsync(message.Chat.Id, "Запрос к базе на вывод турнирной таблицы");
+                            Console.WriteLine(applicationTournament);
+                            levelAplly = 0;
+                        }
+                        else
+                        {
+                            await botClient.SendTextMessageAsync(message.Chat.Id, "Ввели не числи. Напишите цифру соответствущую");
+                            levelAplly = 5;
+                        }
                         return;
                     default:
                         Console.WriteLine("Не указали параметр");
@@ -164,6 +214,17 @@ namespace FootballTelegramBot
                     case "tourneyTable":
                         Console.WriteLine("кнопка нажата");
                         actionChoice = "tourneyTable";
+                        if (update.Type == Telegram.Bot.Types.Enums.UpdateType.CallbackQuery & actionChoice == "tourneyTable")
+                        {
+                            await bot.SendTextMessageAsync(updateCallbackQuery.Message.Chat.Id, "Выбери лигу, указав номер");
+                            //вывод списка лиг из бд
+                            sqlStr = "SELECT nameLeague FROM league";
+                            //вызом метода для вывода из данных из БД. передача двух параметров. строка запроса и название кнопки на которую нажали
+                            resultSql = connectsql.SqlRead(sqlStr, levelAplly);
+                            await bot.SendTextMessageAsync(updateCallbackQuery.Message.Chat.Id, resultSql);
+                            levelAplly = 4;
+                            //Console.WriteLine(s);
+                        }
                         break;
                     case "gameSchedule":
                         Console.WriteLine("кнопка нажата1");

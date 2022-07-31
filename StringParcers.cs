@@ -11,6 +11,7 @@ namespace FootballTelegramBot
         public  bool inputNumberLeague ( string applicationChek,int levelAplly)
         {
             bool check = false;
+            //проверка на то что введено число, когда нужно только 1 параметр и это число
             if (levelAplly == 1 || levelAplly == 2)
             {
                 string pattern = @"^[0-9]{1,2}$";
@@ -19,6 +20,7 @@ namespace FootballTelegramBot
                     check = true;
                 }
             }
+            //проверка ввода по шаблону на заявку в турнир
             if (levelAplly == 3)
             {
                 string pattern = @"^[\wа-яёА-ЯЁ0-9][\wа-яёА-ЯЁ0-9\s\-]+\:[а-яёА-ЯЁ\s\;]+\;{1}$";
