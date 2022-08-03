@@ -86,3 +86,4 @@ E:\Подготовка к диплому\Наработки по диплому
 E:\Подготовка к диплому\Наработки по диплому\git\telegramBot\bin\Debug\netcoreapp3.1\runtimes\win-x86\native\sni.dll
 E:\Подготовка к диплому\Наработки по диплому\git\telegramBot\bin\Debug\netcoreapp3.1\runtimes\unix\lib\netcoreapp2.1\System.Data.SqlClient.dll
 E:\Подготовка к диплому\Наработки по диплому\git\telegramBot\bin\Debug\netcoreapp3.1\runtimes\win\lib\netcoreapp2.1\System.Data.SqlClient.dll
+E:\Подготовка к диплому\Наработки по диплому\git\telegramBot\bin\Debug\netcoreapp3.1\Dapper.dll

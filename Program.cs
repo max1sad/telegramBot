@@ -7,11 +7,13 @@ using Telegram.Bot.Types;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Types.ReplyMarkups;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace FootballTelegramBot
 {
     class Program
     {
+        public static DBProvide dBProvide = new DBProvide();
         public static DBConnection connectsql = new DBConnection();
         static ITelegramBotClient bot = new TelegramBotClient("5444116745:AAEiHTg9bpEQLHA7sEGj_c7SpCTg6AXMVPY");
         //результат запроса к БД
@@ -63,9 +65,8 @@ namespace FootballTelegramBot
                         if (stringParcers.inputNumberLeague(applicationChek, levelAplly) == true)
                         {
                             applicationTournament = message.Text + ";";
-                            sqlStr = "select idNameTourney,nameTourney from nameTourney where statusToutney is null";
                             //запрос на список турниров для участия.
-                            resultSql = connectsql.SqlRead(sqlStr, levelAplly);
+                            resultSql = string.Join("\n", dBProvide.GetAllTourney().Select(l => l.idNameTourney +"-"+ l.nameTourney));                           
                             await botClient.SendTextMessageAsync(message.Chat.Id, "Выбери номер турнира, в котором планируешь учавствовать");
                             //вывод пользователю список турниров с номерами
                             await botClient.SendTextMessageAsync(message.Chat.Id, resultSql);
@@ -73,7 +74,6 @@ namespace FootballTelegramBot
                             actionChoice = "";
                             levelAplly = 2;
                             applicationChek = "";
-                            sqlStr = "";
                         }
                         else
                         {
@@ -111,7 +111,8 @@ namespace FootballTelegramBot
                             Console.WriteLine(message.Chat.Id);                                                        
                             //добавляем команду в таблицу
                             sqlStr = "";
-                            sqlStr = "insert into Team (nameTeams) values (\'" + stringArray[2] + "\');";
+                            //sqlStr = "insert into Team (nameTeams) values (\'" + stringArray[2] + "\');";
+                            dBProvide.CreateTeams(new Model.Team(){nameTeams = stringArray[2]});
                             connectsql.SqlWrite(sqlStr);
                             //получаем id добавленной команды
                             sqlStr = "";
@@ -218,9 +219,9 @@ namespace FootballTelegramBot
                         {
                             await bot.SendTextMessageAsync(updateCallbackQuery.Message.Chat.Id, "Выбери лигу, указав номер");
                             //вывод списка лиг из бд
-                            sqlStr = "SELECT nameLeague FROM league";
+                            //sqlStr = "SELECT nameLeague FROM league";
                             //вызом метода для вывода из данных из БД. передача двух параметров. строка запроса и название кнопки на которую нажали
-                            resultSql = connectsql.SqlRead(sqlStr, levelAplly);
+                            resultSql = string.Join("\n", dBProvide.GetAllLeague().Select(l => $"{l.nameLeague} -Лига"));
                             await bot.SendTextMessageAsync(updateCallbackQuery.Message.Chat.Id, resultSql);
                             levelAplly = 4;
                             //Console.WriteLine(s);
@@ -236,10 +237,8 @@ namespace FootballTelegramBot
                         if (update.Type == Telegram.Bot.Types.Enums.UpdateType.CallbackQuery & actionChoice == "apply")
                         {
                             await bot.SendTextMessageAsync(updateCallbackQuery.Message.Chat.Id, "Выбери лигу, указав номер");
-                            //вывод списка лиг из бд
-                            sqlStr = "SELECT nameLeague FROM league";
-                            //вызом метода для вывода из данных из БД. передача двух параметров. строка запроса и название кнопки на которую нажали
-                            resultSql = connectsql.SqlRead(sqlStr, levelAplly);
+                            //вызом метода для вывода из данных из БД
+                            resultSql = string.Join("\n", dBProvide.GetAllLeague().Select(l => $"{l.nameLeague} -Лига")) ;
                             await bot.SendTextMessageAsync(updateCallbackQuery.Message.Chat.Id, resultSql);
                             levelAplly = 1;
                             //Console.WriteLine(s);
@@ -275,8 +274,10 @@ namespace FootballTelegramBot
         static void Main(string[] args)
         {
             //вызывает соединение с базой данных
-            connectsql.OpenConnect();
+            //connectsql.OpenConnect();
             
+
+            //Console.WriteLine(dBProvide.GetAllPlayer());
             //блок запуска бота и методов проверки сообщений и обработки ошибок
             Console.WriteLine("Запущен бот " + bot.GetMeAsync().Result.FirstName);
             var cts = new CancellationTokenSource();

@@ -7,7 +7,8 @@ namespace FootballTelegramBot
 {
     class DBConnection
     {
-        SqlConnection sqlConnection = new SqlConnection(@"Data Source=DESKTOP-2MK3795;Initial Catalog=dbfootbal;Integrated Security=True");
+        public SqlConnection sqlConnection = new SqlConnection(@"Data Source=DESKTOP-2MK3795;Initial Catalog=dbfootbal;Integrated Security=True");
+
         public void OpenConnect()
         {
             if (sqlConnection.State == System.Data.ConnectionState.Closed)
@@ -40,6 +41,14 @@ namespace FootballTelegramBot
                 Console.WriteLine(e.ToString());
             }
             
+        }
+        public SqlCommand dataReader(string sqlStr)
+        {
+            using (SqlCommand sqlCommand = new SqlCommand(sqlStr, sqlConnection))
+            {
+                return sqlCommand;
+               
+            }
         }
         public  string  SqlRead(String sqlstr, int numberOperation)
         {
