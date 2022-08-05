@@ -110,36 +110,21 @@ namespace FootballTelegramBot
                             stringArray = stringParcers.sqlParcerApply(applicationTournament);
                             Console.WriteLine(message.Chat.Id);                                                        
                             //добавляем команду в таблицу
-                            sqlStr = "";
-                            //sqlStr = "insert into Team (nameTeams) values (\'" + stringArray[2] + "\');";
                             dBProvide.CreateTeams(new Model.Team(){nameTeams = stringArray[2]});
-                            connectsql.SqlWrite(sqlStr);
-                            //получаем id добавленной команды
-                            sqlStr = "";
-                            sqlStr = "select idTeams from Team where nameTeams = \'"+stringArray[2]+"\';";
+                            string idTeams = string.Join("\n", dBProvide.GetAllTeams().Where(l => l.nameTeams == stringArray[2]).Select(l => l.idTeams));
                             //запрос с номером 100- это вывод 1-го поля с типом числовым.
-                            string idTeams = connectsql.SqlRead(sqlStr, 100);
-                            sqlStr = "";
                             // добавляем команду в турнир
-                            sqlStr = "insert into tourneyTeams (idLeague,idNameTourney,idTeams) values (" + stringArray[0] + "," + stringArray[1] + "," + idTeams + ");";
-                            connectsql.SqlWrite(sqlStr);
+                            dBProvide.CreateTourneyTeams(new Model.TourneyTeams() { idLeague = int.Parse(stringArray[0]),idNameTourney = int.Parse(stringArray[1]),idTeams = int.Parse(idTeams) });
                             //добавялем всех игроков в таблицу игроки и первым запросом считаекм что капитан подал заявку и его номер пишем тоже.
-                            sqlStr = "insert into player (FIO,idPhone) values (\'" + stringArray[3] + "\'" + ",\'" + message.Chat.Id + "\');";
-                            connectsql.SqlWrite(sqlStr);
-                            sqlStr = "select idPlayer from player where FIO = \'" + stringArray[3] + "\';";
-                            idPlayers = connectsql.SqlRead(sqlStr, 100);
-                            sqlStr = "insert into playerTeams (idTeams,teamCaptain,idPlayer) values (" + idTeams + "," + "\'yes\'," + idPlayers + ");";
-                            connectsql.SqlWrite(sqlStr);
+                            dBProvide.CreatePlayerCapitan(new Model.Player() { FIO = stringArray[3], idPhone = message.Chat.Id.ToString() });
+                            idPlayers = string.Join("\n", dBProvide.GetAllPlayer().Where(l => l.FIO == stringArray[3]).Select(l => l.idPlayer));
+                            Console.WriteLine(idPlayers);
+                            dBProvide.CreatePlayerTeamsCapitan(new Model.PlayerTeams() { idTeams = int.Parse(idTeams), teamCaptain = "yes", idPlayer = int.Parse(idPlayers) });
                             for (int i = 4; i < stringArray.Count; i++)
                             {
-                                sqlStr = "";
-                                sqlStr = "insert into player (FIO) values (\'" + stringArray[i] + "\');";
-                                connectsql.SqlWrite(sqlStr);
-                                sqlStr = "select idPlayer from player where FIO = \'" + stringArray[i] + "\';";
-                                idPlayers = connectsql.SqlRead(sqlStr, 100);
-                                sqlStr = "insert into playerTeams (idTeams,idPlayer) values (" + idTeams + "," + idPlayers + ");";
-                                connectsql.SqlWrite(sqlStr);
-                                //Console.WriteLine(stringArray[i]);
+                                dBProvide.CreatePlayer(new Model.Player() { FIO = stringArray[i] });
+                                idPlayers = string.Join("\n", dBProvide.GetAllPlayer().Where(l => l.FIO == stringArray[i]).Select(l => l.idPlayer));
+                                dBProvide.CreatePlayerTeams(new Model.PlayerTeams() { idTeams = int.Parse(idTeams), idPlayer = int.Parse(idPlayers) });
                             }
 
                             //написать запрос добавления игрока в команду , id команды уже получал в переменную str;
@@ -160,7 +145,7 @@ namespace FootballTelegramBot
                         {
                             applicationTournament = message.Text + ";";
                             sqlStr = "select idNameTourney,nameTourney from nameTourney where statusToutney is null";
-                            //запрос на список турниров для участия.
+                            resultSql = string.Join("\n", dBProvide.GetAllTourney().Select(l => l.idNameTourney + "-" + l.nameTourney));
                             //actionChoice = "apply1";
                             resultSql = connectsql.SqlRead(sqlStr, 1);
                             await botClient.SendTextMessageAsync(message.Chat.Id, "Выбери номер турнира, для просмотра турнирной таблицы");
@@ -275,8 +260,11 @@ namespace FootballTelegramBot
         {
             //вызывает соединение с базой данных
             //connectsql.OpenConnect();
-            
-
+           var dat =  "05-08-22 18:55";
+            DateTime dar = DateTime.Parse(dat);
+            Console.WriteLine(dar);
+            //string rez = 
+            //Console.WriteLine(rez);
             //Console.WriteLine(dBProvide.GetAllPlayer());
             //блок запуска бота и методов проверки сообщений и обработки ошибок
             Console.WriteLine("Запущен бот " + bot.GetMeAsync().Result.FirstName);

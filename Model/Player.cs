@@ -6,20 +6,8 @@ namespace FootballTelegramBot.Model
 {
     class Player
     {
-        private int idPlayer;
-        private string FIO = "";
-        private string idPhone = "";
-        public int IdPlayer
-        {
-            get; set;
-        }
-        public string Fio
-        {
-            get; set;
-        }
-        public string IdPhone
-        {
-            get; set;
-        }
+        public int idPlayer{ get; set;}
+        public string FIO{ get; set;}
+        public string idPhone { get; set;}
     }
 }

@@ -6,25 +6,10 @@ namespace FootballTelegramBot.Model
 {
     class PlayerTeams
     {
-        private int idPlayerTeams;
-        private int idTeams;
-        private string teamCaptain = "";
-        private int idPlaeyr;
-        public int IdPlayerTeams
-        {
-            get; set;
-        }
-        public int IdTeams
-        {
-            get; set;
-        }
-        public string TeamCaptain
-        {
-            get; set;
-        }
-        public int IdPlaeyr
-        {
-            get; set;
-        }
+ 
+        public int idPlayerTeams{ get; set; }
+        public int idTeams {get; set;}
+        public string teamCaptain{ get; set;}
+        public int idPlayer{ get; set;}
     }
 }
